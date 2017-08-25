@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+
+</style>
+<head>
+    <meta charset="UTF-8">
+    <title>iboard</title>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+<div align="center">
+    <canvas height="500" width="600" id="scene" onmousemove="onMove(event)" onmousedown="onDown(event)" onmouseup="onUp()">
+</canvas>
+<button onclick="refresh()">重绘</button>
+</div>
+</body>
+
+<script>
+    width=window.screen.width;
+    height=window.screen.height*0.9;
+    dots=[];
+    size=10;
+
+    function init(ctx) {
+        ctx.fillStyle="#000000";
+        ctx.fillRect(0,0,width,height);
+
+    }
+    function draw(ctx,x,y) {
+        ctx.fillStyle="#fefefe";
+        ctx.fillRect(x,y,1,1);
+
+
+
+
+    }
+
+
+
+
+    var downed=false;
+    var socket = io();
+    scene=document.getElementById("scene");
+    context=scene.getContext('2d');
+    init(context);
+    let rect=scene.getBoundingClientRect();
+
+    scene.addEventListener("touchmove",function (event) {
+                let touch=event.touches[0];
+                let x=touch.clientX-rect.left*(scene.width/rect.width);
+                let y=touch.clientY-rect.top*(scene.height/rect.height);
+                console.log("原X:"+touch.clientX+"减去后X:"+x);
+                console.log("rect left:"+rect.left+";rect top"+rect.top);
+                draw(context,x,y);
+                console.log("touch"+x+","+y);
+
+
+    });
+    function paint(event) {
+        context.fillStyle="#000000";
+        let x=event.pageX-scene.offsetLeft;
+        let y=event.clientY-scene.offsetTop;
+//        let offsetLeft=event.offsetLeft;
+//        let offsetTop=event.offsetTop;
+//        context.lineTo(x-offsetLeft,y-offsetTop);
+//        context.stroke();
+        draw(context,x,y);
+        let msg={status:200,msg:{x:x,y:y}};
+        uploadXY(msg);
+
+    }
+    function onMove(event) {
+        if(downed){
+            paint(event);
+        }
+    }
+
+    function onDown(event) {
+        downed=true;
+        context.fillStyle="#fefefe";
+        let x=event.pageX-scene.offsetLeft;
+        let y=event.clientY-scene.offsetTop;
+//        let offsetLeft=event.offsetLeft;
+//        let offsetTop=event.offsetTop;
+//        context.moveTo(x-offsetLeft,y-offsetTop);
+        draw(context,x,y);
+
+    }
+        function onUp() {
+        context.onmousemove=null;
+        context.onmousedown=null;
+        downed=false;
+
+    }
+
+    function uploadXY(msg) {
+
+        socket.emit('board',msg);
+        return false;
+    }
+    function refresh() {
+      msg={status:304};
+      socket.emit('board',msg);
+    }
+    socket.on('board',function (msg) {
+       switch (msg.status)
+       {
+           case 200:
+               let dot=msg.msg;
+               draw(context,dot.x,dot.y);
+               break;
+           case 304:
+               location.reload();
+               break;
+       }
+    });
+</script>
+</html>
+
