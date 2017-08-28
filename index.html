@@ -5,18 +5,25 @@
 </style>
 <head>
     <meta charset="UTF-8">
-    <title>iboard</title>
+    <title>——<@</title>
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 <div align="center">
+    <audio src="music/bgm.mp3" autoplay></audio>
     <canvas height="500" width="600" id="scene" onmousemove="onMove(event)" onmousedown="onDown(event)" onmouseup="onUp()">
-</canvas>
-<button onclick="refresh()">重绘</button>
+你的浏览器不支持Canvas</canvas>
+
 </div>
 </body>
 
 <script>
+    console.log("想你　　　　 想你　　 想你　　　 想你　想你 想你想见你\n"+
+    "想你　　　想你　想你　 想你　　 想你　 想你\n"+
+    "想你　　 想你　　 想你　想你　 想你　　想你 想你想见你\n"+
+    "想你　　 想你　　 想你　 想你 想你　　 想你\n"+
+    "想你　　　想你　想你　　　想你想你　　 想你\n"+
+    "想你想见你 想你想你　　　　 想你　　　 想你 想你想见你 ");
     width=window.screen.width;
     height=window.screen.height*0.9;
     dots=[];
@@ -29,7 +36,16 @@
     }
     function draw(ctx,x,y) {
         ctx.fillStyle="#fefefe";
-        ctx.fillRect(x,y,1,1);
+        let size=1;
+        let width=10;
+        ctx.fillRect(x,y,size,size);
+//       for (let i=0;i<width;i++)
+//       {
+//           let r=10*(Math.random());
+//           ctx.fillRect(x+r,y+r,size,size);
+//       }
+
+
 
 
 
@@ -65,7 +81,7 @@
 //        let offsetTop=event.offsetTop;
 //        context.lineTo(x-offsetLeft,y-offsetTop);
 //        context.stroke();
-        draw(context,x,y);
+//        draw(context,x,y);
         let msg={status:200,msg:{x:x,y:y}};
         uploadXY(msg);
 
@@ -94,15 +110,25 @@
 
     }
 
+
     function uploadXY(msg) {
 
         socket.emit('board',msg);
         return false;
     }
     function refresh() {
+
       msg={status:304};
       socket.emit('board',msg);
     }
+    document.onkeydown=function(e){
+
+        if(e.keyCode==27)
+        {
+            refresh();
+        }
+    };
+
     socket.on('board',function (msg) {
        switch (msg.status)
        {
@@ -112,6 +138,9 @@
                break;
            case 304:
                location.reload();
+               break;
+           case 201:
+               writePoem();
                break;
        }
     });
