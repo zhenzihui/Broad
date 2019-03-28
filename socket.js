@@ -12,7 +12,7 @@ app.get('/', function(req, res){
 });
 
 http.listen(8000, function(){
-    console.log('listening on ');
+    console.log('listening on 8000');
 });
 
 io.on('connection', function(socket){
